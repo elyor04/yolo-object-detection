@@ -108,25 +108,32 @@ class DetectionModel:
         self.visualize(image, boxes, classIds, scores, self.classNames)
 
 
-dm = DetectionModel()
-dm.prepare()
+def main():
+    dm = DetectionModel()
+    dm.prepare()
 
-cam = cv.VideoCapture(0)
-prevTime = 0
+    cam = cv.VideoCapture(0)
+    prevTime = 0
 
-while True:
-    img = cam.read()[1]
-    dm.detectAndVisualize(img)
+    while True:
+        img = cam.read()[1]
+        dm.detectAndVisualize(img)
 
-    currTime = time()
-    fps = f"FPS: {round(1 / (currTime - prevTime), 1)}"
-    prevTime = currTime
+        currTime = time()
+        fps = f"FPS: {round(1 / (currTime - prevTime), 1)}"
+        prevTime = currTime
 
-    cv.putText(img, fps, (5, 35), cv.FONT_HERSHEY_COMPLEX_SMALL, 2.0, (255, 0, 0), 2)
-    cv.imshow("Object Detection", img)
+        cv.putText(
+            img, fps, (5, 35), cv.FONT_HERSHEY_COMPLEX_SMALL, 2.0, (255, 0, 0), 2
+        )
+        cv.imshow("Object Detection", img)
 
-    if cv.waitKey(2) == 27:
-        break
+        if cv.waitKey(2) == 27:
+            break
 
-cam.release()
-cv.destroyAllWindows()
+    cam.release()
+    cv.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    main()
