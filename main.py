@@ -36,7 +36,7 @@ class DetectionModel:
         self, image: np.ndarray, confThreshold: float = 0.6, nmsThreshold: float = 0.3
     ) -> tuple[list, list, list]:
         blob = cv.dnn.blobFromImage(
-            image, 1.0 / 255, (320, 320), swapRB=True, crop=False
+            image, 1.0 / 255, (416, 416), swapRB=True, crop=False
         )
         self.model.setInput(blob)
         outputs = self.model.forward(self.outLayersNames)
@@ -97,7 +97,7 @@ class DetectionModel:
             gts = cv.getTextSize(name, font, 2.0, 2)
             gtx = gts[0][0] + xmin
             gty = gts[0][1] + ymin
-            x, y = min(gtx + 3, width), min(gty + 4, height)
+            x, y = min(gtx + 3, width), min(gty + 6, height)
 
             cv.rectangle(image, (xmin, ymin), (xmax, ymax), color, 4)
             cv.rectangle(image, (xmin, ymin), (x, y), color, -1)
