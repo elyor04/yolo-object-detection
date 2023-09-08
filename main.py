@@ -25,6 +25,7 @@ class DetectionModel:
         if not path.exists(self.WEIGHTS_PATH):
             download(self.MODEL_LINK, self.WEIGHTS_PATH)
         self.model = cv.dnn.readNet(self.WEIGHTS_PATH, self.CONFIG_PATH)
+
         with open(self.LABELS_PATH, "rt") as f:
             self.classNames = f.read().splitlines()
         self.outLayersNames = self.model.getUnconnectedOutLayersNames()
