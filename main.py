@@ -22,12 +22,14 @@ class DetectionModel:
         self.colors = dict()
 
     def prepare(self) -> None:
-        if not path.exists(self.WEIGHTS_PATH):
-            download(self.MODEL_LINK, self.WEIGHTS_PATH)
-        self.model = cv.dnn.readNet(self.WEIGHTS_PATH, self.CONFIG_PATH)
-
         with open(self.LABELS_PATH, "rt") as f:
             self.classNames = f.read().splitlines()
+
+        if not path.exists(self.WEIGHTS_PATH):
+            print("Downloading model. This may take a while...")
+            download(self.MODEL_LINK, self.WEIGHTS_PATH)
+
+        self.model = cv.dnn.readNet(self.WEIGHTS_PATH, self.CONFIG_PATH)
         self.outLayersNames = self.model.getUnconnectedOutLayersNames()
 
     def detect(
