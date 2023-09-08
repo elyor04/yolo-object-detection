@@ -2,12 +2,14 @@ import cv2 as cv
 import numpy as np
 import os.path as path
 from time import time
+from wget import download
 from random import randint
 
 
 class DetectionModel:
     def __init__(self, dataDir: str = "data") -> None:
         self.DATA_DIR = dataDir
+        self.MODEL_LINK = "https://pjreddie.com/media/files/yolov3.weights"
 
         self.WEIGHTS_PATH = path.join(self.DATA_DIR, "yolov3.weights")
         self.CONFIG_PATH = path.join(self.DATA_DIR, "yolov3.cfg")
@@ -20,13 +22,15 @@ class DetectionModel:
         self.colors = dict()
 
     def prepare(self) -> None:
+        if not path.exists(self.WEIGHTS_PATH):
+            download(self.MODEL_LINK, self.WEIGHTS_PATH)
         self.model = cv.dnn.readNet(self.WEIGHTS_PATH, self.CONFIG_PATH)
         with open(self.LABELS_PATH, "rt") as f:
             self.classNames = f.read().splitlines()
         self.outLayersNames = self.model.getUnconnectedOutLayersNames()
 
     def detect(
-        self, image: np.ndarray, accuracy: float = 0.6
+        self, image: np.ndarray, confThreshold: float = 0.6, nmsThreshold: float = 0.3
     ) -> tuple[list, list, list]:
         blob = cv.dnn.blobFromImage(
             image, 1.0 / 255, (320, 320), swapRB=True, crop=False
@@ -45,7 +49,7 @@ class DetectionModel:
                 classId = np.argmax(scores)
                 confidence = scores[classId]
 
-                if confidence > accuracy:
+                if confidence > confThreshold:
                     w, h = int(detection[2] * width), int(detection[3] * height)
                     x, y = int(detection[0] * width - w / 2), int(
                         detection[1] * height - h / 2
@@ -54,7 +58,7 @@ class DetectionModel:
                     classIds.append(classId)
                     confidences.append(float(confidence))
 
-        indexes = cv.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+        indexes = cv.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
         boxes = [boxes[i] for i in indexes]
         classIds = [classIds[i] for i in indexes]
         confidences = [confidences[i] for i in indexes]
@@ -106,7 +110,7 @@ class DetectionModel:
 dm = DetectionModel()
 dm.prepare()
 
-cam = cv.VideoCapture(1)
+cam = cv.VideoCapture(0)
 prevTime = 0
 
 while True:
