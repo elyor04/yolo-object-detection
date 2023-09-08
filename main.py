@@ -108,7 +108,7 @@ class DetectionModel:
         self.visualize(image, boxes, classIds, scores, self.classNames)
 
 
-def main():
+def main() -> None:
     dm = DetectionModel()
     dm.prepare()
 
